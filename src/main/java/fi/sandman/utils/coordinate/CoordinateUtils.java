@@ -54,11 +54,10 @@ public class CoordinateUtils {
 	 * @return
 	 * @throws CoordinateConversionFailed
 	 */
-	public static Point KKJxyToWGS86lalo(Point point)
+	public static CoordinatePoint convertKKJxyToWGS86lalo(CoordinatePoint point)
 			throws CoordinateConversionFailed {
-		Point pointKKJLaLo = KKJxyToKKJlalo(point);
-		Point pointWGS84 = KKJlaloToWGS86(pointKKJLaLo);
-		return pointWGS84;
+		CoordinatePoint pointKKJLaLo = convertKKJxyToKKJlalo(point);
+		return convertKKJlaloToWGS86(pointKKJLaLo);
 	}
 
 	/**
@@ -67,7 +66,7 @@ public class CoordinateUtils {
 	 * @param point
 	 * @return
 	 */
-	public static Point KKJlaloToWGS86(Point point) {
+	public static CoordinatePoint convertKKJlaloToWGS86(CoordinatePoint point) {
 		double latitude = point.getLatitude();
 		double longitude = point.getLongitude();
 
@@ -80,7 +79,7 @@ public class CoordinateUtils {
 				* latitude + 0.118177E-01 * latitude * longitude + 0.826646E-03
 				* longitude * longitude) / 3600.0;
 
-		Point pointWGS84 = new Point(Math.toDegrees(Math.toRadians(latitude)
+		CoordinatePoint pointWGS84 = new CoordinatePoint(Math.toDegrees(Math.toRadians(latitude)
 				+ dLa), Math.toDegrees(Math.toRadians(longitude) + dLo));
 		return pointWGS84;
 	}
@@ -92,7 +91,7 @@ public class CoordinateUtils {
 	 * @return
 	 * @throws CoordinateConversionFailed
 	 */
-	public static Point KKJxyToKKJlalo(Point point)
+	public static CoordinatePoint convertKKJxyToKKJlalo(CoordinatePoint point)
 			throws CoordinateConversionFailed {
 
 		int zoneNumber = 0;
@@ -107,7 +106,7 @@ public class CoordinateUtils {
 		double minLo = Math.toRadians(18.5);
 		double maxLo = Math.toRadians(32.0);
 
-		Point pointKKJLaLo = new Point(0, 0);
+		CoordinatePoint pointKKJLaLo = new CoordinatePoint(0, 0);
 		for (int i = 1; i < 35; i++) {
 			double deltaLa = maxLa - minLa;
 			double deltaLo = maxLo - minLo;
@@ -115,7 +114,7 @@ public class CoordinateUtils {
 			pointKKJLaLo.setLatitude(Math.toDegrees(minLa + 0.5 * deltaLa));
 			pointKKJLaLo.setLongitude(Math.toDegrees(minLo + 0.5 * deltaLo));
 
-			Point tmp = KKJlaloToKKJxy(pointKKJLaLo, zoneNumber);
+			CoordinatePoint tmp = convertKKJlaloToKKJxy(pointKKJLaLo, zoneNumber);
 
 			if (tmp.getLatitude() < point.getLatitude()) {
 				minLa = minLa + 0.45 * deltaLa;
@@ -140,7 +139,6 @@ public class CoordinateUtils {
 	 */
 	public static int getKKJzoneByEasting(double easting)
 			throws UnableToDetermineZone {
-		System.out.println("easting" + easting);
 		int zoneNumber = (int) Math.floor(easting / 1000000.0);
 		if (zoneNumber < 0 || zoneNumber > 5) {
 			throw new UnableToDetermineZone(easting);
@@ -159,7 +157,7 @@ public class CoordinateUtils {
 		return zoneNumber;
 	}
 
-	public static Point KKJlaloToKKJxy(Point pointKKJLaLo, int zoneNumber) {
+	public static CoordinatePoint convertKKJlaloToKKJxy(CoordinatePoint pointKKJLaLo, int zoneNumber) {
 		double lo = Math.toRadians(pointKKJLaLo.getLongitude())
 				- Math.toRadians(KKJ_ZONE_INFO.get(zoneNumber)[0]);
 
@@ -175,10 +173,10 @@ public class CoordinateUtils {
 		double nn = n * n;
 
 		double cosLa = Math.cos(Math.toRadians(pointKKJLaLo.getLatitude()));
-		double NN = ee * cosLa * cosLa;
-		double LaF = Math.atan(Math.tan(Math.toRadians(pointKKJLaLo
-				.getLatitude())) / Math.cos(lo * Math.sqrt(1 + NN)));
-		double cosLaF = Math.cos(LaF);
+		double nn2 = ee * cosLa * cosLa;
+		double laF = Math.atan(Math.tan(Math.toRadians(pointKKJLaLo
+				.getLatitude())) / Math.cos(lo * Math.sqrt(1 + nn2)));
+		double cosLaF = Math.cos(laF);
 
 		double t = (Math.tan(lo) * cosLaF)
 				/ Math.sqrt(1 + ee * cosLaF * cosLaF);
@@ -189,22 +187,22 @@ public class CoordinateUtils {
 		double a3 = a * 0.9375 * nn * (1 - nn / 4);
 		double a4 = a * 35 / 48.0 * nn * n;
 
-		double tLa = a1 * LaF - a2 * Math.sin(2 * LaF) + a3 * Math.sin(4 * LaF)
-				- a4 * Math.sin(6 * LaF);
+		double tLa = a1 * laF - a2 * Math.sin(2 * laF) + a3 * Math.sin(4 * laF)
+				- a4 * Math.sin(6 * laF);
 		double tLo = c * Math.log(t + Math.sqrt(1 + t * t)) + 500000.0
 				+ zoneNumber * 1000000.0;
-		Point pointKKJxy = new Point(tLa, tLo);
-		return pointKKJxy;
+		
+		return new CoordinatePoint(tLa, tLo);
 	}
 
-	public static Point WGS86lolaToKKJxy(Point pointWGS84)
+	public static CoordinatePoint convertWGS86lolaToKKJxy(CoordinatePoint pointWGS84)
 			throws CoordinateConversionFailed {
-		Point pointKKJLaLo = WGS86toKKJlalo(pointWGS84);
+		CoordinatePoint pointKKJLaLo = convertWGS86toKKJlalo(pointWGS84);
 		int zoneNumber = getKKJzoneByLongitude(pointKKJLaLo.getLongitude());
-		return KKJlaloToKKJxy(pointKKJLaLo, zoneNumber);
+		return convertKKJlaloToKKJxy(pointKKJLaLo, zoneNumber);
 	}
 
-	public static Point WGS86toKKJlalo(Point pointWGS84) {
+	public static CoordinatePoint convertWGS86toKKJlalo(CoordinatePoint pointWGS84) {
 		double latitude = pointWGS84.getLatitude();
 		double longitude = pointWGS84.getLongitude();
 		double dLa = StrictMath.toRadians(-1.24766 + 0.269941 * latitude
@@ -216,12 +214,12 @@ public class CoordinateUtils {
 				+ -0.0118166 * latitude * longitude + -0.000826201 * longitude
 				* longitude) / 3600.0;
 
-		Point pointKKJLaLo = new Point(Math.toDegrees(Math.toRadians(latitude)
+		CoordinatePoint pointKKJLaLo = new CoordinatePoint(Math.toDegrees(Math.toRadians(latitude)
 				+ dLa), Math.toDegrees(Math.toRadians(longitude) + dLo));
 		return pointKKJLaLo;
 	}
 
-	private static Map<Integer, double[]> KKJ_ZONE_INFO = new HashMap<Integer, double[]>() {
+	private static final Map<Integer, double[]> KKJ_ZONE_INFO = new HashMap<Integer, double[]>() {
 		private static final long serialVersionUID = 1L;
 		{
 			put(0, new double[] { 18.0, 500000.0 });

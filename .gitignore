@@ -1,3 +1,9 @@
 # Maven #
 #########
 target/
+
+# eclipse #
+###########
+.classpath
+.project
+.settings

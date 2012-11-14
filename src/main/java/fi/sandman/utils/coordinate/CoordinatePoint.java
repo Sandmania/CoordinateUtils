@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author Jouni Latvatalo <jouni.latvatalo@gmail.com>
  * 
  */
-public class Point implements Serializable {
+public class CoordinatePoint implements Serializable {
 
 	private static final long serialVersionUID = 4489750270195706147L;
 
@@ -21,7 +21,7 @@ public class Point implements Serializable {
 	 * Not meant to be instantiated without latitude and longitude
 	 */
 	@SuppressWarnings("unused")
-	private Point() {
+	private CoordinatePoint() {
 	}
 
 	/**
@@ -31,12 +31,12 @@ public class Point implements Serializable {
 	 * @param longitude
 	 *            (aka x, easting)
 	 */
-	public Point(double latitude, double longitude) {
+	public CoordinatePoint(double latitude, double longitude) {
 		this.latitude = latitude;
 		this.longitude = longitude;
 	}
 
-	public Point(double latitude, double longitude, double altitude,
+	public CoordinatePoint(double latitude, double longitude, double altitude,
 			CoordinateReferenceSystem coordinateReferenceSystem) {
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -52,7 +52,7 @@ public class Point implements Serializable {
 	 *            (aka x, easting)
 	 * @param coordinateReferenceSystem
 	 */
-	public Point(double latitude, double longitude,
+	public CoordinatePoint(double latitude, double longitude,
 			CoordinateReferenceSystem coordinateReferenceSystem) {
 		this.latitude = latitude;
 		this.longitude = longitude;
@@ -94,7 +94,6 @@ public class Point implements Serializable {
 	 * 
 	 * @return
 	 */
-
 	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
@@ -143,5 +142,14 @@ public class Point implements Serializable {
 	 */
 	public void setAltitude(double altitude) {
 		this.altitude = altitude;
+	}
+	
+	
+	public int getLongitudeMicrodegree() {
+		return (int) (getLongitude() * 1E6);
+	}
+
+	public int getLatitudeMicrodegree() {
+		return (int) (getLatitude() * 1E6);
 	}
 }
