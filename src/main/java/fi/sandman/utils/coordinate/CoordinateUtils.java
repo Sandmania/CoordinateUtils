@@ -19,12 +19,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * <p>
  * A coordinate utility to convert between different coordinate systems.
+ * </p>
  * 
+ * <p>
  * This is just a port from Olli Lammi's python coverter, so kudos goes to him.
+ * </p>
  * 
+ * <p>
  * NOTE!: The coordinate functions are developed to work only with coordinates
  * that are in the area of Finland.
+ * </p>
  * 
  * @author Jouni Latvatalo <jouni.latvatalo@gmail.com>
  * 
@@ -35,7 +41,7 @@ public class CoordinateUtils {
 	 * <p>
 	 * {@code CoordinateUtils} instances should NOT be constructed in standard
 	 * programming. Instead, the class should be used as
-	 * {@code CoordinateUtils.convertFromKKJLaLoToWGS86LaLo(la,lo);}.
+	 * {@code CoordinateUtils.convertFromKKJLaLoToWGS84LaLo(la,lo);}.
 	 * </p>
 	 * 
 	 * <p>
@@ -54,10 +60,10 @@ public class CoordinateUtils {
 	 * @return
 	 * @throws CoordinateConversionFailed
 	 */
-	public static CoordinatePoint convertKKJxyToWGS86lalo(CoordinatePoint point)
+	public static CoordinatePoint convertKKJxyToWGS84lalo(CoordinatePoint point)
 			throws CoordinateConversionFailed {
 		CoordinatePoint pointKKJLaLo = convertKKJxyToKKJlalo(point);
-		return convertKKJlaloToWGS86(pointKKJLaLo);
+		return convertKKJlaloToWGS84(pointKKJLaLo);
 	}
 
 	/**
@@ -66,7 +72,7 @@ public class CoordinateUtils {
 	 * @param point
 	 * @return
 	 */
-	public static CoordinatePoint convertKKJlaloToWGS86(CoordinatePoint point) {
+	public static CoordinatePoint convertKKJlaloToWGS84(CoordinatePoint point) {
 		double latitude = point.getLatitude();
 		double longitude = point.getLongitude();
 
@@ -195,14 +201,14 @@ public class CoordinateUtils {
 		return new CoordinatePoint(tLa, tLo);
 	}
 
-	public static CoordinatePoint convertWGS86lolaToKKJxy(CoordinatePoint pointWGS84)
+	public static CoordinatePoint convertWGS84lolaToKKJxy(CoordinatePoint pointWGS84)
 			throws CoordinateConversionFailed {
-		CoordinatePoint pointKKJLaLo = convertWGS86toKKJlalo(pointWGS84);
+		CoordinatePoint pointKKJLaLo = convertWGS84toKKJlalo(pointWGS84);
 		int zoneNumber = getKKJzoneByLongitude(pointKKJLaLo.getLongitude());
 		return convertKKJlaloToKKJxy(pointKKJLaLo, zoneNumber);
 	}
 
-	public static CoordinatePoint convertWGS86toKKJlalo(CoordinatePoint pointWGS84) {
+	public static CoordinatePoint convertWGS84toKKJlalo(CoordinatePoint pointWGS84) {
 		double latitude = pointWGS84.getLatitude();
 		double longitude = pointWGS84.getLongitude();
 		double dLa = StrictMath.toRadians(-1.24766 + 0.269941 * latitude
